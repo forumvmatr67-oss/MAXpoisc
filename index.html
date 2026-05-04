@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAX ПОИСК</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+        .logo {
+            margin-bottom: 30px;
+        }
+        .logo svg {
+            width: 280px;
+            height: auto;
+        }
+        .search-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            padding: 6px 15px;
+            box-shadow: 0 1px 6px rgba(32,33,36,0.08);
+            transition: box-shadow 0.2s;
+            margin-bottom: 20px;
+            background: white;
+        }
+        .search-box:hover,
+        .search-box:focus-within {
+            box-shadow: 0 1px 8px rgba(32,33,36,0.28);
+        }
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 18px;
+            padding: 12px 8px;
+            background: transparent;
+        }
+        .search-box button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .search-box button svg {
+            width: 24px;
+            height: 24px;
+            fill: #5f6368;
+        }
+        .engine-selector {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+        .engine-selector label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #f1f3f4;
+            transition: 0.2s;
+        }
+        .engine-selector input[type="radio"] {
+            display: none;
+        }
+        .engine-selector input[type="radio"]:checked + label {
+            background: #e8f0fe;
+            color: #1a73e8;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .btn-find {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .btn-find:hover {
+            background: #1666c0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .footer-note {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Логотип MAX -->
+        <div class="logo">
+            <svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="maxGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#4B0082"/>
+                        <stop offset="50%" stop-color="#8A2BE2"/>
+                        <stop offset="100%" stop-color="#FF4500"/>
+                    </linearGradient>
+                </defs>
+                <text x="10" y="72" font-family="Arial, sans-serif" font-size="80" font-weight="900" fill="url(#maxGradient)">MAX</text>
+                <text x="215" y="72" font-family="Arial, sans-serif" font-size="30" font-weight="bold" fill="#555">ПОИСК</text>
+            </svg>
+        </div>
+
+        <!-- Строка поиска -->
+        <div class="search-box">
+            <input type="text" id="queryInput" placeholder="Введите запрос..." autofocus>
+            <button onclick="doSearch()" aria-label="Поиск">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Выбор поисковой системы -->
+        <div class="engine-selector">
+            <input type="radio" name="searchEngine" id="googleRadio" value="google" checked>
+            <label for="googleRadio">🇬 Google</label>
+            <input type="radio" name="searchEngine" id="yandexRadio" value="yandex">
+            <label for="yandexRadio">🇷 Яндекс</label>
+        </div>
+
+        <!-- Кнопка поиска -->
+        <button class="btn-find" onclick="doSearch()">MAX ПОИСК</button>
+
+        <div class="footer-note">
+            Запрещённые сайты автоматически исключаются из результатов
+        </div>
+    </div>
+
+    <script>
+        // ====== НАСТРОЙКИ ЗАПРЕЩЁННЫХ САЙТОВ (добавляй или удаляй домены) ======
+        const blockedSites = [
+            "example.com",
+            "bad-site.org",
+            "spam.net",
+            "нежелательный-сайт.рф"
+        ];
+
+        function doSearch() {
+            const query = document.getElementById('queryInput').value.trim();
+            if (query === '') return;
+
+            // Определяем выбранный поисковик
+            const engineRadio = document.getElementsByName('searchEngine');
+            let engine = 'google';
+            for (const radio of engineRadio) {
+                if (radio.checked) {
+                    engine = radio.value;
+                    break;
+                }
+            }
+
+            // Формируем строку с исключениями сайтов
+            const exclusionString = blockedSites
+                .map(site => `-site:${site}`)
+                .join(' ');
+
+            // Полный запрос: пользовательский текст + исключения
+            const fullQuery = query + ' ' + exclusionString;
+
+            let url;
+            if (engine === 'google') {
+                url = 'https://www.google.com/search?q=' + encodeURIComponent(fullQuery);
+            } else { // yandex
+                url = 'https://yandex.ru/search/?text=' + encodeURIComponent(fullQuery);
+            }
+
+            // Перенаправляем на страницу результатов
+            window.location.href = url;
+        }
+
+        // Поиск по нажатию Enter
+        document.getElementById('queryInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                doSearch();
+            }
+        });
+    </script>
+</body>
+</html>
